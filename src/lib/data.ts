@@ -70,7 +70,7 @@ export const DATA = {
 	navbar: [
 		{ href: "hero", label: "Home", icon: HomeIcon },
 		{ href: "about", label: "About", icon: InfoCircledIcon },
-		{ href: "about", label: "Resume", icon: FileTextIcon },
+		{ href: "resume", label: "Resume", icon: FileTextIcon },
 		{ href: "projects", icon: CodeIcon, label: "Projects" },
 		{ href: "contact", label: "Contact", icon: EnvelopeClosedIcon },
 		// { href: "#", icon: PencilLine, label: "Notes" },
