@@ -79,6 +79,15 @@ function HomePage() {
 						{DATA.summary}
 					</p>
 				</BlurFade>
+				<Marquee pauseOnHover className="[--duration:20s]">
+					<div className="flex gap-4">
+						{DATA.skills.map((skill, id) => (
+							<BlurFade key={skill} delay={BLUR_FADE_DELAY * 10 + id * 0.05}>
+								<Badge key={skill}>{skill}</Badge>
+							</BlurFade>
+						))}
+					</div>
+				</Marquee>
 			</section>
 			<section id="resume">
 				<BlurFade delay={BLUR_FADE_DELAY * 3}>
@@ -111,28 +120,6 @@ function HomePage() {
 							</div>
 						))}
 					</div>
-				</div>
-			</section>
-			<section id="skills">
-				<Badge
-					variant="outline"
-					className="mb-4 h-8 w-24 flex justify-center space-x-2"
-				>
-					<HomeIcon /> <span>Skills</span>
-				</Badge>
-				<div className="flex min-h-0 flex-col gap-y-3">
-					<BlurFade delay={BLUR_FADE_DELAY * 9}>
-						<h2 className="text-xl font-bold text-center">Skills</h2>
-					</BlurFade>
-					<Marquee pauseOnHover className="[--duration:20s]">
-						<div className="flex gap-4">
-							{DATA.skills.map((skill, id) => (
-								<BlurFade key={skill} delay={BLUR_FADE_DELAY * 10 + id * 0.05}>
-									<Badge key={skill}>{skill}</Badge>
-								</BlurFade>
-							))}
-						</div>
-					</Marquee>
 				</div>
 			</section>
 			<section id="projects">
@@ -200,8 +187,15 @@ function HomePage() {
 						</p>
 					</div>
 
+					<div className="mt-6">
+						<div>
+							<h2 className="text-xl font-bold mb-4">Send Me a Message</h2>
+							<ContactForm />
+						</div>
+					</div>
+
 					<div className="space-y-4">
-						<p className="text-2xl font-bold mt-6">Find me on</p>
+						<p className="text-xl font-bold mt-6">Find me on</p>
 						<div className="space-y-4">
 							{/* GitHub */}
 							<a
@@ -311,13 +305,6 @@ function HomePage() {
 									</div>
 								</div>
 							</a>
-						</div>
-					</div>
-
-					<div className="mt-6">
-						<div>
-							<h2 className="text-2xl font-bold mb-4">Send Me a Message</h2>
-							<ContactForm />
 						</div>
 					</div>
 				</div>
