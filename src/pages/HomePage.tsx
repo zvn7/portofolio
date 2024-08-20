@@ -159,8 +159,23 @@ function HomePage() {
 								</p>
 							</div>
 						</div>
+						<div className="flex flex-col items-center justify-center mt-8">
+							{/* <div className="relative">
+								<div className="animate-pulse">
+									
+								</div>
+							</div> */}
+							<p className="mt-4 text-2xl font-bold text-muted-foreground">
+								Coming Soon
+							</p>
+							<p className="text-base text-muted-foreground max-w-md text-center">
+								We&apos;re working on something amazing! Stay tuned for updates
+								and be ready to explore our upcoming projects.
+							</p>
+						</div>
 					</BlurFade>
-					<div className="grid grid-cols-1 gap-3 sm:grid-cols-2 max-w-[800px] mx-auto">
+
+					{/* <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 max-w-[800px] mx-auto">
 						{DATA.projects.map((project, id) => (
 							<BlurFade
 								key={project.title}
@@ -179,7 +194,7 @@ function HomePage() {
 								/>
 							</BlurFade>
 						))}
-					</div>
+					</div> */}
 				</div>
 			</section>
 			<section id="contact">
