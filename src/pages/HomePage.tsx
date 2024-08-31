@@ -17,10 +17,21 @@ import {
 	Twitter,
 } from "lucide-react";
 import ContactForm from "@/components/organisms/ContactForm";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const BLUR_FADE_DELAY = 0.04;
 
 function HomePage() {
+	const [showAll, setShowAll] = useState(false);
+	const navigate = useNavigate();
+
+	const projectsToShow = showAll ? DATA.projects : DATA.projects.slice(0, 4);
+
+	const handleSeeAll = () => {
+		navigate("/projects");
+	};
+
 	return (
 		<div className="font-poppins space-y-8 mb-12">
 			<section id="hero">
@@ -149,7 +160,7 @@ function HomePage() {
 					</BlurFade>
 
 					<div className="grid grid-cols-1 gap-3 sm:grid-cols-2 max-w-[800px] mx-auto">
-						{DATA.projects.map((project, id) => (
+						{projectsToShow.map((project, id) => (
 							<BlurFade
 								key={project.title}
 								delay={BLUR_FADE_DELAY * 12 + id * 0.05}
@@ -168,6 +179,12 @@ function HomePage() {
 							</BlurFade>
 						))}
 					</div>
+
+					{!showAll && (
+						<div className="flex justify-center mt-8">
+							<Button onClick={handleSeeAll}>Lihat Semua</Button>
+						</div>
+					)}
 				</div>
 			</section>
 			<section id="contact">
