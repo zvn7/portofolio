@@ -8,40 +8,15 @@ import {
 } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 import { ModeToggle } from "./mode-toggle";
-import { Link } from "react-router-dom";
-import {
-	HomeIcon,
-	InfoCircledIcon,
-	EnvelopeClosedIcon,
-	TwitterLogoIcon,
-	GitHubLogoIcon,
-	LinkedInLogoIcon,
-} from "@radix-ui/react-icons";
-
-const DATA = {
-	navbar: [
-		{ href: "/home", label: "Home", icon: HomeIcon },
-		{ href: "/about", label: "About", icon: InfoCircledIcon },
-		{ href: "/contact", label: "Contact", icon: EnvelopeClosedIcon },
-	],
-	contact: {
-		social: {
-			twitter: {
-				url: "https://twitter.com",
-				icon: TwitterLogoIcon,
-				navbar: true,
-			},
-			github: { url: "https://github.com", icon: GitHubLogoIcon, navbar: true },
-			linkedin: {
-				url: "https://linkedin.com",
-				icon: LinkedInLogoIcon,
-				navbar: true,
-			},
-		},
-	},
-};
+import { DATA } from "@/lib/data";
 
 export default function Navbar() {
+	const handleScroll = (id: string) => {
+		const section = document.getElementById(id);
+		if (section) {
+			section.scrollIntoView({ behavior: "smooth" });
+		}
+	};
 	return (
 		<div className="pointer-events-none fixed inset-x-0 bottom-0 z-30 mx-auto mb-4 flex origin-bottom h-full max-h-14">
 			<div className="fixed bottom-0 inset-x-0 h-16 w-full bg-background to-transparent backdrop-blur-lg [-webkit-mask-image:linear-gradient(to_top,black,transparent)] dark:bg-background"></div>
@@ -50,15 +25,15 @@ export default function Navbar() {
 					<DockIcon key={item.href}>
 						<Tooltip>
 							<TooltipTrigger asChild>
-								<Link
-									to={item.href}
+								<button
+									onClick={() => handleScroll(item.href)}
 									className={cn(
 										buttonVariants({ variant: "ghost", size: "icon" }),
 										"size-12"
 									)}
 								>
 									<item.icon className="size-4" />
-								</Link>
+								</button>
 							</TooltipTrigger>
 							<TooltipContent>
 								<p>{item.label}</p>
