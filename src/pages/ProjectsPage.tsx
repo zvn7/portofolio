@@ -50,7 +50,7 @@ const ProjectsPage = () => {
             </header>
 
             {/* CONTENT */}
-            <main className="space-y-12">
+            <main className="space-y-12 pt-12 sm:pt-4">
                 <Tabs
                     value={activeTab}
                     onValueChange={setActiveTab}

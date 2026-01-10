@@ -42,19 +42,6 @@ function HomePage() {
 
     const projectsToShow = projects?.slice(0, 4) ?? [];
 
-    const handleAvatarClick = () => {
-        setAvatarClicks((prev) => {
-            const next = prev + 1;
-
-            if (next === 5) {
-                navigate("/admin");
-                return 0; // reset supaya tidak loop
-            }
-
-            return next;
-        });
-    };
-
     return (
         <div className="font-poppins space-y-8 mb-12">
             <section id="hero">
@@ -90,7 +77,14 @@ function HomePage() {
                                 <BlurFade delay={BLUR_FADE_DELAY}>
                                     <Avatar className="size-20 md:size-44 border">
                                         <AvatarImage alt={DATA.name} src={DATA.avatarUrl} />
-                                        <AvatarFallback>{DATA.initials}</AvatarFallback>
+
+                                        <AvatarFallback className="flex items-center justify-center bg-background">
+                                            <img
+                                                src="/logo-trns.png"
+                                                alt="Logo"
+                                                className="w-10 h-10 md:w-24 md:h-24 object-contain"
+                                            />
+                                        </AvatarFallback>
                                     </Avatar>
                                 </BlurFade>
                             </div>
