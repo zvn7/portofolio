@@ -9,7 +9,7 @@ import { CodeIcon, HomeIcon, PencilLine, StarIcon, FileTextIcon } from "lucide-r
 
 export const DATA = {
     name: "Ilham Maulana",
-    initials: "IM",
+    initials: "I AM",
     url: "https://via.placeholder.com/32",
     location: "Indonesia",
     locationLink: "https://www.google.com/maps/place/sanfrancisco",
