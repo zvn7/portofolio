@@ -44,12 +44,13 @@ export async function updateProject(id: string, payload: UpdateProjectPayload): 
 
     const formData = new FormData();
 
-    if (payload.title) formData.append("title", payload.title);
-    if (payload.description) formData.append("description", payload.description);
-    if (payload.category) formData.append("category", payload.category.join(","));
-    if (payload.technologies) formData.append("technologies", payload.technologies.join(","));
-    if (payload.url) formData.append("url", payload.url);
-    if (payload.repository) formData.append("repository", payload.repository);
+    if (payload.title !== undefined) formData.append("title", payload.title);
+    if (payload.description !== undefined) formData.append("description", payload.description);
+    if (payload.category !== undefined) formData.append("category", payload.category.join(","));
+    if (payload.technologies !== undefined)
+        formData.append("technologies", payload.technologies.join(","));
+    if (payload.url !== undefined) formData.append("url", payload.url);
+    if (payload.repository !== undefined) formData.append("repository", payload.repository);
     if (payload.image) formData.append("image", payload.image);
 
     const res = await fetch(`${base}/projects/${id}`, {
@@ -58,7 +59,8 @@ export async function updateProject(id: string, payload: UpdateProjectPayload): 
     });
 
     if (!res.ok) {
-        throw new Error("Failed to update project");
+        const err = await res.json();
+        throw new Error(err.message || "Failed to update project");
     }
 
     return res.json();

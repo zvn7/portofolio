@@ -16,6 +16,8 @@ import { useExperiences } from "@/hooks/useExperiences";
 import { Experience } from "@/interface/experiences";
 import { useProjects } from "@/hooks/useProjects";
 import TechIcon from "tech-stack-icons";
+import { ArrowUpRight } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 const BLUR_FADE_DELAY = 0.04;
 
@@ -40,7 +42,7 @@ function HomePage() {
     const { data: experiences } = useExperiences();
     const { data: projects } = useProjects();
 
-    const projectsToShow = projects?.slice(0, 4) ?? [];
+    const projectsToShow = showAll ? (projects ?? []) : (projects ?? []).slice(0, 5);
 
     return (
         <div className="font-poppins space-y-8 mb-12">
@@ -173,30 +175,34 @@ function HomePage() {
                 </div>
             </section>
             <section id="projects">
-                <Badge variant="outline" className="mb-4 h-8 w-24 flex justify-center space-x-2">
-                    <HomeIcon /> <span>Projects</span>
-                </Badge>
                 <div className="space-y-12 w-full py-12">
                     <BlurFade delay={BLUR_FADE_DELAY * 11}>
                         <div className="flex flex-col items-center justify-center space-y-4 text-center">
-                            <div className="space-y-2">
-                                <div className="inline-block rounded-lg bg-foreground text-background px-3 py-1 text-sm">
-                                    My Projects
-                                </div>
-                                <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl">
-                                    Check out my latest work
-                                </h2>
-                                <p className="text-muted-foreground md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
-                                    I&apos;ve worked on a variety of projects, from simple websites
-                                    to complex web applications. Here are a few of my favorites.
-                                </p>
+                            <div className="flex items-center gap-3">
+                                <span className="h-px w-8 bg-border" />
+                                <span className="font-mono text-xs uppercase tracking-[0.2em] text-muted-foreground">
+                                    Selected Work
+                                </span>
+                                <span className="h-px w-8 bg-border" />
                             </div>
+                            <h2 className="font-poppins text-3xl font-bold tracking-tight sm:text-5xl">
+                                Projects I&apos;ve shipped
+                            </h2>
+                            <p className="text-muted-foreground md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed max-w-2xl">
+                                {projectsToShow.length} project
+                                {projectsToShow.length !== 1 ? "s" : ""}, spanning full-stack apps,
+                                APIs, and interfaces built to solve real problems.
+                            </p>
                         </div>
                     </BlurFade>
 
-                    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 max-w-[800px] mx-auto">
+                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 max-w-[900px] mx-auto">
                         {projectsToShow.map((project, id) => (
-                            <BlurFade key={project._id} delay={BLUR_FADE_DELAY * 12 + id * 0.05}>
+                            <BlurFade
+                                key={project._id}
+                                delay={BLUR_FADE_DELAY * 12 + id * 0.05}
+                                className={cn(id === 0 && "sm:col-span-2")}
+                            >
                                 <ProjectCard
                                     title={project.title}
                                     description={project.description}
@@ -205,6 +211,7 @@ function HomePage() {
                                     video={project.video}
                                     url={project.url}
                                     repository={project.repository}
+                                    featured={id === 0}
                                 />
                             </BlurFade>
                         ))}
@@ -212,7 +219,14 @@ function HomePage() {
 
                     {!showAll && (
                         <div className="flex justify-center mt-8">
-                            <Button onClick={handleSeeAll}>See All</Button>
+                            <Button
+                                onClick={handleSeeAll}
+                                variant="outline"
+                                className="group font-mono text-xs uppercase tracking-wider"
+                            >
+                                See all projects
+                                <ArrowUpRight className="ml-2 h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                            </Button>
                         </div>
                     )}
                 </div>

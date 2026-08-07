@@ -2,12 +2,14 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
 
-import { useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Swal from "sweetalert2";
-
+import MultiSelect from "@/components/molecules/MultiSelect";
+import { useSkills } from "@/hooks/useSkills";
 import { projectSchema, ProjectFormValues } from "@/schemas/projectSchema";
 import { useCreateProject, useUpdateProject } from "@/hooks/useProjects";
 
@@ -20,22 +22,39 @@ interface Props {
 const ProjectModal = ({ open, onClose, project }: Props) => {
     const createMutation = useCreateProject();
     const updateMutation = useUpdateProject();
+    const { data: skills = [] } = useSkills();
+    const [preview, setPreview] = useState<string | null>(null);
+    const fileInputRef = useRef<HTMLInputElement>(null);
+
+    const technologyOptions = Array.from(new Set(skills.map((s) => s.name))).map((name) => ({
+        label: name,
+        value: name,
+    }));
+
+    const categoryOptions = [
+        { label: "Website", value: "Website" },
+        { label: "Application", value: "Application" },
+        { label: "API", value: "API" },
+        { label: "UI/UX", value: "UI/UX" },
+    ];
 
     const {
         register,
         handleSubmit,
         reset,
         setValue,
+        watch,
         formState: { errors, isSubmitting },
     } = useForm<ProjectFormValues>({
         resolver: zodResolver(projectSchema),
         defaultValues: {
             title: "",
             description: "",
-            category: "",
-            technologies: "",
+            category: [],
+            technologies: [],
             url: "",
             repository: "",
+            image: undefined,
         },
     });
 
@@ -44,40 +63,55 @@ const ProjectModal = ({ open, onClose, project }: Props) => {
             reset({
                 title: project.title,
                 description: project.description,
-                category: project.category.join(", "),
-                technologies: project.technologies.join(", "),
-                url: project.url || "",
-                repository: project.repository || "",
+                category: project.category,
+                technologies: project.technologies,
+                url: project.url ?? "",
+                repository: project.repository ?? "",
+                image: undefined,
             });
+            setPreview(project.image ?? null);
         } else {
             reset();
+            setPreview(null);
         }
-    }, [project, reset]);
+
+        if (fileInputRef.current) fileInputRef.current.value = "";
+    }, [project, reset, open]);
+
+    // Handle file change — ambil File pertama dari FileList
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0] ?? null;
+        if (file) {
+            setValue("image", file, { shouldValidate: true });
+            setPreview(URL.createObjectURL(file));
+        } else {
+            setValue("image", undefined);
+            setPreview(project?.image ?? null);
+        }
+    };
 
     const onSubmit = async (values: ProjectFormValues) => {
+        // Untuk create, image wajib ada
+        if (!project && !values.image) {
+            Swal.fire("Error", "Image is required", "error");
+            return;
+        }
+
         try {
             const payload = {
                 title: values.title,
                 description: values.description,
-                category: values.category.split(",").map((v) => v.trim()),
-                technologies: values.technologies.split(",").map((v) => v.trim()),
-                url: values.url || undefined,
-                repository: values.repository || undefined,
-                image: values.image,
+                category: values.category,
+                technologies: values.technologies,
+                url: values.url,
+                repository: values.repository,
+                ...(values.image instanceof File && { image: values.image }),
             };
 
-            if (!project && !payload.image) {
-                Swal.fire("Error", "Image is required", "error");
-                return;
-            }
-
             if (project) {
-                await updateMutation.mutateAsync({
-                    id: project._id,
-                    payload,
-                });
+                await updateMutation.mutateAsync({ id: project._id, payload });
             } else {
-                await createMutation.mutateAsync(payload);
+                await createMutation.mutateAsync(payload as any);
             }
 
             Swal.fire({
@@ -101,38 +135,139 @@ const ProjectModal = ({ open, onClose, project }: Props) => {
                 if (!value) onClose();
             }}
         >
-            <DialogContent className="max-w-lg">
+            <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
                 <DialogHeader>
                     <DialogTitle>{project ? "Edit Project" : "New Project"}</DialogTitle>
                 </DialogHeader>
 
                 <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-                    <Input type="file" {...register("image")} />
+                    {/* Image Upload */}
+                    <div className="space-y-2">
+                        <Label>
+                            Image {!project && <span className="text-red-500">*</span>}
+                            {project && (
+                                <span className="text-xs text-muted-foreground font-normal ml-1">
+                                    (leave empty to keep current)
+                                </span>
+                            )}
+                        </Label>
 
-                    <Input placeholder="Project title" {...register("title")} />
-                    {errors.title && <p className="text-xs text-red-500">{errors.title.message}</p>}
+                        {/* Preview */}
+                        {preview && (
+                            <img
+                                src={preview}
+                                alt="Preview"
+                                className="w-full h-36 object-cover rounded-lg border"
+                            />
+                        )}
 
-                    <Textarea placeholder="Description" {...register("description")} />
-                    {errors.description && (
-                        <p className="text-xs text-red-500">{errors.description.message}</p>
-                    )}
+                        {/* File input — dikontrol manual, bukan via register */}
+                        <input
+                            ref={fileInputRef}
+                            type="file"
+                            accept="image/*"
+                            onChange={handleFileChange}
+                            className="w-full text-sm file:mr-3 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-secondary file:text-secondary-foreground hover:file:bg-secondary/80 cursor-pointer"
+                        />
+                    </div>
 
-                    <Input placeholder="Category. contoh Website, API" {...register("category")} />
+                    {/* Title */}
+                    <div className="space-y-1.5">
+                        <Label>
+                            Title <span className="text-red-500">*</span>
+                        </Label>
+                        <Input placeholder="My Awesome Project" {...register("title")} />
+                        {errors.title && (
+                            <p className="text-xs text-red-500">{errors.title.message}</p>
+                        )}
+                    </div>
 
-                    <Input
-                        placeholder="Technologies. contoh react, nodejs"
-                        {...register("technologies")}
-                    />
+                    {/* Description */}
+                    <div className="space-y-1.5">
+                        <Label>
+                            Description <span className="text-red-500">*</span>
+                        </Label>
+                        <Textarea
+                            placeholder="Brief description of the project..."
+                            rows={3}
+                            className="resize-none"
+                            {...register("description")}
+                        />
+                        {errors.description && (
+                            <p className="text-xs text-red-500">{errors.description.message}</p>
+                        )}
+                    </div>
 
-                    <Input placeholder="Website URL" {...register("url")} />
-                    <Input placeholder="Repository URL" {...register("repository")} />
+                    {/* Category */}
+                    <div className="space-y-1.5">
+                        <Label>
+                            Category <span className="text-red-500">*</span>
+                        </Label>
+                        <MultiSelect
+                            options={categoryOptions}
+                            value={watch("category")}
+                            onChange={(val) => setValue("category", val, { shouldValidate: true })}
+                            placeholder="Select category"
+                        />
+                        {errors.category && (
+                            <p className="text-xs text-red-500">{errors.category.message}</p>
+                        )}
+                    </div>
 
-                    <div className="flex justify-end gap-2 pt-4">
+                    {/* Technologies */}
+                    <div className="space-y-1.5">
+                        <Label>
+                            Technologies <span className="text-red-500">*</span>
+                        </Label>
+                        <MultiSelect
+                            options={technologyOptions}
+                            value={watch("technologies")}
+                            onChange={(val) =>
+                                setValue("technologies", val, { shouldValidate: true })
+                            }
+                            placeholder="Select technologies"
+                        />
+                        {errors.technologies && (
+                            <p className="text-xs text-red-500">{errors.technologies.message}</p>
+                        )}
+                    </div>
+
+                    {/* URL & Repository */}
+                    <div className="grid grid-cols-2 gap-3">
+                        <div className="space-y-1.5">
+                            <Label>Website URL</Label>
+                            <Input placeholder="https://..." {...register("url")} />
+                            {errors.url && (
+                                <p className="text-xs text-red-500">{errors.url.message}</p>
+                            )}
+                        </div>
+                        <div className="space-y-1.5">
+                            <Label>Repository URL</Label>
+                            <Input
+                                placeholder="https://github.com/..."
+                                {...register("repository")}
+                            />
+                            {errors.repository && (
+                                <p className="text-xs text-red-500">{errors.repository.message}</p>
+                            )}
+                        </div>
+                    </div>
+
+                    <div className="flex justify-end gap-2 pt-2">
                         <Button type="button" variant="outline" onClick={onClose}>
                             Cancel
                         </Button>
-                        <Button type="submit" disabled={isSubmitting}>
-                            {project ? "Save Changes" : "Create"}
+                        <Button
+                            type="submit"
+                            disabled={
+                                isSubmitting || createMutation.isPending || updateMutation.isPending
+                            }
+                        >
+                            {isSubmitting || createMutation.isPending || updateMutation.isPending
+                                ? "Saving..."
+                                : project
+                                  ? "Save Changes"
+                                  : "Create Project"}
                         </Button>
                     </div>
                 </form>
