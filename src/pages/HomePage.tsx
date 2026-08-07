@@ -10,7 +10,7 @@ import { HomeIcon } from "@radix-ui/react-icons";
 import Marquee from "@/components/magicui/marquee";
 import { Button } from "@/components/ui/button";
 import ContactForm from "@/components/organisms/ContactForm";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useExperiences } from "@/hooks/useExperiences";
 import { Experience } from "@/interface/experiences";
@@ -43,6 +43,20 @@ function HomePage() {
     const { data: projects } = useProjects();
 
     const projectsToShow = showAll ? (projects ?? []) : (projects ?? []).slice(0, 5);
+
+    const sortedExperiences = useMemo(() => {
+        if (!experiences) return [];
+
+        return [...experiences].sort((a, b) => {
+            const aEnd = a.endDate ? new Date(a.endDate).getTime() : Infinity; // "Now" dianggap paling akhir
+            const bEnd = b.endDate ? new Date(b.endDate).getTime() : Infinity;
+
+            if (aEnd !== bEnd) return bEnd - aEnd; // descending: terbaru dulu
+
+            // kalau endDate sama (mis. dua-duanya masih berjalan), urutkan by startDate terbaru
+            return new Date(b.startDate).getTime() - new Date(a.startDate).getTime();
+        });
+    }, [experiences]);
 
     return (
         <div className="font-poppins space-y-8 mb-12">
@@ -146,32 +160,55 @@ function HomePage() {
                         <span>Resume</span>
                     </Badge>
                 </BlurFade>
-                <div className="max-w-4xl ml-2 mt-4 mx-auto">
-                    <div className="relative border-l-2 border-gray-600 pl-8">
-                        {experiences?.map((experience: Experience) => (
-                            <div key={experience._id} className="mb-8">
-                                <div className="flex items-center mb-2">
-                                    <div className="absolute -left-4 w-8 flex items-center justify-center">
-                                        <span className="block w-4 h-4 bg-gray-800 rounded-full"></span>
-                                    </div>
-                                    <h3 className="text-lg font-bold">
-                                        {experience.company} (
-                                        {formatMonthYear(experience.startDate)} -{" "}
-                                        {experience.endDate
-                                            ? formatMonthYear(experience.endDate)
-                                            : "Now"}
-                                        )
-                                    </h3>
+
+                <div className="max-w-4xl ml-2 mt-6 mx-auto">
+                    {sortedExperiences.map((experience: Experience, index: number) => {
+                        const isCurrent = !experience.endDate;
+                        const isLast = index === sortedExperiences.length - 1;
+
+                        return (
+                            <div
+                                key={experience._id}
+                                className="grid grid-cols-[1.5rem_1fr] gap-x-4"
+                            >
+                                {/* kolom dot + garis — sepenuhnya independen per item */}
+                                <div className="flex flex-col items-center">
+                                    <span
+                                        className={cn(
+                                            "mt-1.5 h-3 w-3 flex-shrink-0 rounded-full border-2 border-background",
+                                            isCurrent ? "bg-emerald-500" : "bg-foreground",
+                                        )}
+                                    />
+                                    {!isLast && <span className="mt-1 w-px flex-1 bg-border" />}
                                 </div>
-                                <div className="mb-4">
-                                    <h4 className="text-base font-semibold text-blue-800">
+
+                                {/* konten */}
+                                <div className={cn(!isLast && "pb-10")}>
+                                    <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+                                        <h3 className="text-lg font-bold tracking-tight">
+                                            {experience.company}
+                                        </h3>
+                                        <span className="font-mono text-xs uppercase tracking-wider text-muted-foreground">
+                                            {formatMonthYear(experience.startDate)} —{" "}
+                                            {isCurrent ? (
+                                                <span className="text-emerald-600">Now</span>
+                                            ) : (
+                                                formatMonthYear(experience.endDate)
+                                            )}
+                                        </span>
+                                    </div>
+
+                                    <h4 className="mt-1 text-base font-semibold text-blue-700">
                                         {experience.position}
                                     </h4>
-                                    <p className="text-gray-400">{experience.description}</p>
+
+                                    <p className="mt-2 max-w-2xl text-sm leading-relaxed text-muted-foreground">
+                                        {experience.description}
+                                    </p>
                                 </div>
                             </div>
-                        ))}
-                    </div>
+                        );
+                    })}
                 </div>
             </section>
             <section id="projects">
