@@ -3,6 +3,7 @@ import AdminDashboard from "@/pages/admin/AdminDashboard";
 import AdminExperiences from "@/pages/admin/AdminExperiences";
 import AdminLayout from "@/pages/admin/AdminLayout";
 import AdminProjects from "@/pages/admin/AdminProjects";
+import AdminSkills from "@/pages/admin/AdminSkills";
 import HomePage from "@/pages/HomePage";
 import ProjectsPage from "@/pages/ProjectsPage";
 import { createBrowserRouter } from "react-router-dom";
@@ -37,6 +38,10 @@ export const router = createBrowserRouter([
             {
                 path: "experiences",
                 element: <AdminExperiences />,
+            },
+            {
+                path: "skills",
+                element: <AdminSkills />,
             },
         ],
     },
