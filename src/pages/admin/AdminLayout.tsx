@@ -125,6 +125,7 @@ const NAV_ITEMS = [
     { label: "Projects", href: "/admin/projects", icon: <IconFolder />, exact: false },
     { label: "Experiences", href: "/admin/experiences", icon: <IconBriefcase />, exact: false },
     { label: "Skills", href: "/admin/skills", icon: <IconPen />, exact: false },
+    { label: "Certifications", href: "/admin/certifications", icon: <IconPen />, exact: false },
     { label: "Blog", href: "/admin/blog", icon: <IconPen />, exact: false },
 ] as const;
 

@@ -1,4 +1,5 @@
 import Layout from "@/components/templates/layouts";
+import AdminCertifications from "@/pages/admin/AdminCertifications";
 import AdminDashboard from "@/pages/admin/AdminDashboard";
 import AdminExperiences from "@/pages/admin/AdminExperiences";
 import AdminLayout from "@/pages/admin/AdminLayout";
@@ -42,6 +43,10 @@ export const router = createBrowserRouter([
             {
                 path: "skills",
                 element: <AdminSkills />,
+            },
+            {
+                path: "certifications",
+                element: <AdminCertifications />,
             },
         ],
     },
